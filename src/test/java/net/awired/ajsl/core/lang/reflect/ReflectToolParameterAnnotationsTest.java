@@ -102,7 +102,7 @@ public class ReflectToolParameterAnnotationsTest {
 
     @Test
     public void should_not_found_annotations_for_null() {
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(null);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(null);
 
         assertNull(findParametersAnnotation);
     }
@@ -110,7 +110,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_not_found_annotations_for_no_parameters() {
         Method method = Genre.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(0, findParametersAnnotation.length);
@@ -119,7 +119,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_not_found_annotations_for_param_without_annotations() {
         Method method = Genre2.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -129,7 +129,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_one_param() {
         Method method = Genre3.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -140,7 +140,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_one_param_extend() throws Exception {
         Method method = Genre4.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -151,7 +151,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_one_param_implements() throws Exception {
         Method method = Genre5.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -162,7 +162,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_one_param_with_2_annotations() throws Exception {
         Method method = Genre7.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -175,7 +175,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_one_param_with_2_same_annotations() throws Exception {
         Method method = Genre8.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(1, findParametersAnnotation.length);
@@ -187,7 +187,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_on_two_params_in_interfaces() throws Exception {
         Method method = Genre9.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(2, findParametersAnnotation.length);
@@ -200,7 +200,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_with_priority_on_class() throws Exception {
         Method method = Genre11.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(2, findParametersAnnotation.length);
@@ -213,7 +213,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_with_priority_on_extends() throws Exception {
         Method method = Genre12.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(2, findParametersAnnotation.length);
@@ -226,7 +226,7 @@ public class ReflectToolParameterAnnotationsTest {
     @Test
     public void should_find_annotation_with_priority_on_class_when_extends_and_implements() throws Exception {
         Method method = Genre13.class.getMethods()[0];
-        Set<Annotation>[] findParametersAnnotation = ReflectTool.findParametersAnnotation(method);
+        Set<Annotation>[] findParametersAnnotation = ReflectTools.findParametersAnnotation(method);
 
         assertNotNull(findParametersAnnotation);
         assertEquals(2, findParametersAnnotation.length);
