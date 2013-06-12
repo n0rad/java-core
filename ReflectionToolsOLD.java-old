@@ -1,0 +1,663 @@
+///**
+// * @author alemaire
+// */
+//package net.awired.ajsl.core.lang.reflectOLD;
+//
+//import java.lang.reflect.Constructor;
+//import java.lang.reflect.Field;
+//import java.lang.reflect.InvocationTargetException;
+//import java.lang.reflect.Method;
+//import java.lang.reflect.Modifier;
+//import java.lang.reflect.ParameterizedType;
+//import java.lang.reflect.Type;
+//import java.lang.reflect.TypeVariable;
+//import java.util.ArrayList;
+//import java.util.HashMap;
+//import java.util.Iterator;
+//import java.util.List;
+//import java.util.Map;
+//import sun.security.smartcardio.SunPCSC.Factory;
+//import com.sun.xml.internal.ws.developer.MemberSubmissionAddressing.Validation;
+//
+///**
+// * @author alemaire
+// * 
+// */
+//public class ReflectionToolsOLD {
+//
+//    private static Map<Class<?>, Class<?>> objectToPrimary;
+//
+//    static {
+//        objectToPrimary = new HashMap<Class<?>, Class<?>>();
+//        objectToPrimary.put(Boolean.class, Boolean.TYPE);
+//        objectToPrimary.put(Byte.class, Byte.TYPE);
+//        objectToPrimary.put(Character.class, Character.TYPE);
+//        objectToPrimary.put(Double.class, Double.TYPE);
+//        objectToPrimary.put(Float.class, Float.TYPE);
+//        objectToPrimary.put(Integer.class, Integer.TYPE);
+//        objectToPrimary.put(Short.class, Short.TYPE);
+//    }
+//
+//    /**
+//     * Returns the class which is a BicEntity implementation in the clazz.
+//     * parameterized type.
+//     * 
+//     * @param clazz
+//     * @return the class which is a BicEntity implementation in the clazz.
+//     */
+//    public static Class<?> getGenericBicEntityClasses(Class<?> clazz) {
+//
+//        for (TypeVariable<?> type : clazz.getTypeParameters()) {
+//            Object genericDeclaration = type;
+//            Class<?> currentClass = null;
+//            if (genericDeclaration instanceof Class) {
+//                currentClass = (Class<?>) genericDeclaration;
+//            } else {
+//                for (Type typ : type.getBounds()) {
+//                    if (typ instanceof Class<?>) {
+//                        currentClass = (Class<?>) typ;
+//                    }
+//                }
+//            }
+//            if (isImplementBicEntity(currentClass)) {
+//                return currentClass;
+//            }
+//        }
+//
+//        Type genericType = clazz.getGenericSuperclass();
+//        if (genericType instanceof ParameterizedType) {
+//            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+//            for (Type type : parameterizedType.getActualTypeArguments()) {
+//                Class<?> currentClass = null;
+//                if (type instanceof Class) {
+//                    currentClass = (Class<?>) type;
+//                }
+//                if (isImplementBicEntity(currentClass)) {
+//                    return currentClass;
+//                }
+//            }
+//        }
+//
+//        throw new RuntimeException("This Class isn't paraterized by a class which implements BicEntity.");
+//    }
+//
+//
+//    /**
+//     * Checks element of the lists and remove it, if empty.
+//     * 
+//     * @param object
+//     */
+//    public static void removeEmptyElementFromList(BicFormImpl<?, ?> object) throws ReflectionToolsException {
+//        Class<?> clazz = object.getClass();
+//        while (!clazz.equals(BicFormImpl.class)) {
+//            for (Field field : clazz.getDeclaredFields()) {
+//                Class<?> fieldClass = field.getType();
+//                if (isListClass(fieldClass)) {
+//                    List<?> list = (List<?>) getObjectFromField(object, field);
+//                    if (!list.isEmpty()) {
+//                        Class<?> elementClass = getGenericClassAt(field, 0);
+//                        Object defaultElement = constructs(elementClass);
+//                        Iterator<?> iterator = list.iterator();
+//                        while (iterator.hasNext()) {
+//                            Object element = iterator.next();
+//                            if (element != null) {
+//                                removeEmptyElementFromList((BicFormImpl<?, ?>) element);
+//                            }
+//                            if (element == null || equalsProperties(element, defaultElement)) {
+//                                iterator.remove();
+//                            }
+//                        }
+//                    }
+//                } else if (FormFile.class.equals(fieldClass)) {
+//                    FormFile f = (FormFile) getObjectFromField(object, field);
+//                    if (f != null && f.getFileName() != null && f.getFileName().length() == 0) {
+//                        setObjectToField(object, field, null, FormFile.class);
+//                    }
+//                }
+//            }
+//            clazz = clazz.getSuperclass();
+//        }
+//    }
+//
+//    /**
+//     * Checks the one properties are equaled two properties.
+//     * 
+//     * @param one
+//     * @param two
+//     * @return
+//     */
+//    private static boolean equalsProperties(Object one, Object two) {
+//
+//        Class<?> clazz = one.getClass();
+//        if (clazz == null || !clazz.equals(two.getClass())) {
+//            throw new RuntimeException("class of one and class of two are different.");
+//        }
+//
+//        while (!clazz.equals(BicFormImpl.class)) {
+//            for (Field field : clazz.getDeclaredFields()) {
+//                if (!"serialVersionUID".equals(field.getName())) {
+//                    Object onePropertyValue;
+//                    Object twoPropertyValue;
+//
+//                    try {
+//                        onePropertyValue = getObjectFromField(one, field);
+//                    } catch (ReflectionToolsException e) {
+//                        // TODO gerer l'exception
+//                        throw new RuntimeException("Cannot get the value from field " + field + " for one.", e);
+//                    }
+//
+//                    try {
+//                        twoPropertyValue = getObjectFromField(two, field);
+//                    } catch (ReflectionToolsException e) {
+//                        // TODO gerer l'exception
+//                        throw new RuntimeException("Cannot get the value from field " + field + " for two.", e);
+//                    }
+//
+//                    if (onePropertyValue == null ? !(twoPropertyValue == null) : !onePropertyValue
+//                            .equals(twoPropertyValue)) {
+//                        if (field.getType().equals(String.class)) {
+//                            String onePropertyStringValue = (String) onePropertyValue;
+//                            String twoPropertyStringValue = (String) twoPropertyValue;
+//                            boolean oneIsNull = ValidationTools.isNull(onePropertyStringValue)
+//                                    || ValidationTools.isEmpty(onePropertyStringValue);
+//                            boolean twoIsNull = ValidationTools.isNull(twoPropertyStringValue)
+//                                    || ValidationTools.isEmpty(twoPropertyStringValue);
+//                            if (oneIsNull != twoIsNull) {
+//                                return false;
+//                            }
+//                        } else {
+//                            return false;
+//                        }
+//                    }
+//                }
+//            }
+//            clazz = clazz.getSuperclass();
+//        }
+//
+//        return true;
+//    }
+//
+//    /**
+//     * Gets field generics class at index.
+//     * 
+//     * @param field
+//     * @param index
+//     * @return
+//     * @throws ReflectionToolsException
+//     */
+//    public static Class<?> getGenericClassAt(Field field, int index) throws ReflectionToolsException {
+//        try {
+//            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+//            return (Class<?>) parameterizedType.getActualTypeArguments()[index];
+//        } catch (ArrayIndexOutOfBoundsException e) {
+//            // TODO: it
+//            throw new ReflectionToolsException("invalid index : " + index);
+//        }
+//    }
+//
+//    /**
+//     * Populates lists from object field dynamically for form populating.
+//     * 
+//     * @param object
+//     */
+//    public static void populateListDynamically(Object object) throws ReflectionToolsException {
+//        Class<?> clazz = object.getClass();
+//        while (!clazz.equals(BicFormImpl.class)) {
+//            for (Field field : clazz.getDeclaredFields()) {
+//                Class<?> fieldClass = field.getType();
+//                if (isListClass(fieldClass)) {
+//                    Class<?> beanClass = getGenericClassAt(field, 0);
+//                    List dynamicList = generateListDynamic(beanClass);
+//                    setObjectToField(object, field, dynamicList, List.class);
+//                }
+//            }
+//            clazz = clazz.getSuperclass();
+//        }
+//    }
+//
+//    public static void addEmptyElementToList(Object object) throws ReflectionToolsException {
+//        Class<?> clazz = object.getClass();
+//        while (!clazz.equals(BicFormImpl.class)) {
+//            for (Field field : clazz.getDeclaredFields()) {
+//                Class<?> fieldClass = field.getType();
+//
+//                if (isListClass(fieldClass)) {
+//                    Class<?> beanClass = getGenericClassAt(field, 0);
+//                    // construct a new object
+//                    Object beanInstance = constructs(beanClass);
+//
+//                    // get list
+//                    List dynamicList = (List) getObjectFromField(object, field);
+//
+//                    if (dynamicList.size() == 0
+//                    // do not add empty element if list is not empty
+//                    /*
+//                     * || !equalsProperties(dynamicList.get(0), beanInstance)
+//                     */) {
+//                        // list is empty or have not an empty element first
+//                        // insert empty element to first place
+//                        dynamicList.add(0, beanInstance);
+//                    }
+//                    for (Object element : dynamicList) {
+//                        ((BicFormImpl) element).addEmptyElementToLists();
+//                    }
+//
+//                }
+//            }
+//            clazz = clazz.getSuperclass();
+//        }
+//    }
+//
+//    /**
+//     * Checks is clazz is a List interface.
+//     * 
+//     * @param clazz
+//     */
+//    private static boolean isListClass(Class<?> clazz) {
+//        return clazz.equals(List.class);
+//    }
+//
+//    /**
+//     * Returns the setter name for the field.
+//     * 
+//     * @param field
+//     * @return
+//     */
+//    public static String setterName(Field field) {
+//        return prefixName(field, "set");
+//    }
+//
+//    public static String setterName(String field) {
+//        return prefixName(field, "set");
+//    }
+//
+//    /**
+//     * Returns the getter name for the field.
+//     * 
+//     * @param field
+//     * @return
+//     */
+//    public static String getterName(Field field) {
+//
+//        if (field.getType().equals(Boolean.TYPE)) {
+//            return prefixName(field, "is");
+//        }
+//        return prefixName(field, "get");
+//    }
+//
+//    public static String getterName(String field, Type type) {
+//        if (type.equals(Boolean.TYPE)) {
+//            return prefixName(field, "is");
+//        }
+//        return prefixName(field, "get");
+//    }
+//
+//    /**
+//     * Returns the field name prefixed by prefix..
+//     * 
+//     * @param field
+//     * @return
+//     */
+//    private static String prefixName(Field field, String prefix) {
+//        String fieldName = field.getName();
+//        String firstLettre = fieldName.substring(0, 1).toUpperCase();
+//        return prefix + firstLettre + fieldName.substring(1);
+//    }
+//
+//    private static String prefixName(String field, String prefix) {
+//        return prefix + field.substring(0, 1).toUpperCase() + field.substring(1);
+//    }
+//
+//    /**
+//     * Sets the contain in the field of instance.
+//     * 
+//     * @param instance
+//     * @param field
+//     * @param contain
+//     * @throws ReflectionToolsException
+//     */
+//    public static void setObjectToField(Object instance, Field field, Object contain, Class<?> containClass)
+//            throws ReflectionToolsException {
+//        try {
+//            Method method = instance.getClass().getMethod(setterName(field), containClass);
+//            method.invoke(instance, contain);
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The method is not accessible", e);
+//        } catch (NoSuchMethodException e) {
+//            // if the containClass is a primitive wrapper, test the setter with
+//            // the primitive type.
+//            Class<?> primaryContainClass = objectToPrimary.get(containClass);
+//            if (primaryContainClass != null) {
+//                setObjectToField(instance, field, contain, primaryContainClass);
+//            } else {
+//                throw new ReflectionToolsException("The method is undefined", e);
+//            }
+//        } catch (IllegalArgumentException e) {
+//            throw new ReflectionToolsException("The parameters are illegals", e);
+//        } catch (IllegalAccessException e) {
+//            throw new ReflectionToolsException("Cannot access to the method", e);
+//        } catch (InvocationTargetException e) {
+//            throw new ReflectionToolsException("Cannot invocate the method", e);
+//        }
+//    }
+//
+//    /**
+//     * Sets the contain in the field of instance.
+//     * 
+//     * @param instance
+//     * @param field
+//     * @param contain
+//     * @throws ReflectionToolsException
+//     */
+//    public static void setObjectToField(Object instance, String setterName, Object contain, Class<?> containClass)
+//            throws ReflectionToolsException {
+//        try {
+//            Method method = instance.getClass().getMethod(setterName, containClass);
+//            method.invoke(instance, contain);
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The method is not accessible", e);
+//        } catch (NoSuchMethodException e) {
+//            // if the containClass is a primitive wrapper, test the setter with
+//            // the primitive type.
+//            Class<?> primaryContainClass = objectToPrimary.get(containClass);
+//            if (primaryContainClass != null) {
+//                setObjectToField(instance, setterName, contain, primaryContainClass);
+//            } else {
+//                throw new ReflectionToolsException("The method is undefined", e);
+//            }
+//        } catch (IllegalArgumentException e) {
+//            throw new ReflectionToolsException("The parameters are illegals", e);
+//        } catch (IllegalAccessException e) {
+//            throw new ReflectionToolsException("Cannot access to the method", e);
+//        } catch (InvocationTargetException e) {
+//            throw new ReflectionToolsException("Cannot invocate the method", e);
+//        }
+//    }
+//
+//    public static Class<?> getObjectFromFieldRec(Class<?> clazz, String FieldName) throws ReflectionToolsException {
+//        try {
+//            clazz.getDeclaredField(FieldName);
+//            return clazz;
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The method is not accessible", e);
+//        } catch (NoSuchFieldException e) {
+//            Class<?> c = clazz.getSuperclass();
+//            if (c != null) {
+//                return getObjectFromFieldRec(c, FieldName);
+//            } else {
+//                throw new ReflectionToolsException("The method is undefined", e);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Gets the field instance from the instance with the getter.
+//     * 
+//     * @param instance
+//     * @param field
+//     * @return
+//     * @throws ReflectionToolsException
+//     */
+//    public static Object getObjectFromField(Object instance, Field field) throws ReflectionToolsException {
+//
+//        try {
+//            Method method = instance.getClass().getMethod(getterName(field));
+//            return method.invoke(instance);
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The method is not accessible", e);
+//        } catch (NoSuchMethodException e) {
+//            throw new ReflectionToolsException("The method is undefined", e);
+//        } catch (IllegalArgumentException e) {
+//            throw new ReflectionToolsException("The parameters are illegals", e);
+//        } catch (IllegalAccessException e) {
+//            throw new ReflectionToolsException("Cannot access to the method", e);
+//        } catch (InvocationTargetException e) {
+//            throw new ReflectionToolsException("Cannot invocate the method", e);
+//        }
+//    }
+//
+//    /**
+//     * Gets the field instance from the instance with the getter.
+//     * 
+//     * @param instance
+//     * @param getterName
+//     * @return
+//     * @throws ReflectionToolsException
+//     */
+//    public static Object getObjectFromField(Object instance, String getterName) throws ReflectionToolsException {
+//
+//        try {
+//            Method method = instance.getClass().getMethod(getterName);
+//            return method.invoke(instance);
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The method is not accessible", e);
+//        } catch (NoSuchMethodException e) {
+//            throw new ReflectionToolsException("The method is undefined", e);
+//        } catch (IllegalArgumentException e) {
+//            throw new ReflectionToolsException("The parameters are illegals", e);
+//        } catch (IllegalAccessException e) {
+//            throw new ReflectionToolsException("Cannot access to the method", e);
+//        } catch (InvocationTargetException e) {
+//            throw new ReflectionToolsException("Cannot invocate the method", e);
+//        }
+//    }
+//
+//    /**
+//     * Generates the list for the list field.
+//     * 
+//     * @param beanClazz
+//     * @return
+//     */
+//    private static List<?> generateListDynamic(final Class<?> beanClazz) {
+//        List<?> list = ListUtils.lazyList(new ArrayList(), new Factory() {
+//            public Object create() {
+//                try {
+//                    return constructs(beanClazz);
+//                } catch (ReflectionToolsException e) {
+//                    // TODO revoir la gestion de l'exception
+//                    return null;
+//                }
+//            }
+//        });
+//
+//        return list;
+//    }
+//
+//    /**
+//     * Generates an instance of the class clazz with the default constructor
+//     * (without parameter).
+//     * 
+//     * @param clazz
+//     * @return
+//     */
+//    public static Object constructs(Class<?> clazz) throws ReflectionToolsException {
+//        Constructor<?> constructor;
+//        try {
+//            constructor = clazz.getConstructor();
+//
+//        } catch (SecurityException e) {
+//            throw new ReflectionToolsException("The default constructor is not accessible", e);
+//        } catch (NoSuchMethodException e) {
+//            throw new ReflectionToolsException("The default constructor is undefined", e);
+//        }
+//
+//        return instanciate(constructor);
+//    }
+//
+//    /**
+//     * Create an instance using the constructor.
+//     * 
+//     * @param constructor
+//     * @return
+//     * @throws ReflectionToolsException
+//     */
+//    private static Object instanciate(Constructor<?> constructor) throws ReflectionToolsException {
+//        try {
+//            return constructor.newInstance();
+//        } catch (IllegalArgumentException e) {
+//            throw new ReflectionToolsException("The parameters are illegals", e);
+//        } catch (InstantiationException e) {
+//            throw new ReflectionToolsException("Cannot instanciate the instance", e);
+//        } catch (IllegalAccessException e) {
+//            throw new ReflectionToolsException("Cannot access to the construtor", e);
+//        } catch (InvocationTargetException e) {
+//            throw new ReflectionToolsException("Cannot invocate the construtor", e);
+//        }
+//    }
+//
+//    /**
+//     * Validates instance fields and objects fields in the lists. Validates also
+//     * the super class fields.
+//     * 
+//     * @param instance
+//     * @param errors
+//     */
+//    public static void validateAllFields(Object instance, ActionErrors actionErrors, Action action, BicForm form,
+//            ActionMapping mapping, HttpServletRequest request) {
+//
+//        // Object defaultElement;
+//        // try {
+//        // // get an empty object
+//        // defaultElement = constructs(instance.getClass());
+//        // } catch (ReflectionToolsException e) {
+//        // throw new RuntimeException("should not happen", e);
+//        // }
+//        //
+//        // if (!equalsProperties(defaultElement, instance)) {
+//        // its not a empty element, lets validate it
+//        Class<?> clazz = instance.getClass();
+//        while (!clazz.equals(BicFormImpl.class)) {
+//            validateFields(clazz, instance, actionErrors, action, form, mapping, request);
+//            clazz = clazz.getSuperclass();
+//        }
+//        // }
+//    }
+//
+//    /**
+//     * Validates instance fields and objects fields in the lists. The field
+//     * validation use {@link Validation}.
+//     * 
+//     * @param instance
+//     * @param actionErrors
+//     */
+//    private static void validateFields(Class<?> clazz, Object instance, ActionErrors actionErrors, Action action,
+//            BicForm<?> form, ActionMapping mapping, HttpServletRequest request) {
+//        for (Field field : clazz.getDeclaredFields()) {
+//
+//            int mod = field.getModifiers();
+//            if (field.getName().equals("serialVersionUID") || Modifier.isStatic(mod)) {
+//                continue;
+//            }
+//
+//            Object fieldInstance;
+//            try {
+//                fieldInstance = ReflectionToolsOLD.getObjectFromField(instance, field);
+//            } catch (ReflectionToolsException e) {
+//                // TODO gerer l'exception
+//                e.printStackTrace();
+//                fieldInstance = null;
+//            }
+//
+//            if (fieldInstance instanceof List<?>) {
+//                List<?> fieldList = (List<?>) fieldInstance;
+//                validateElementsList(fieldList, actionErrors, action, mapping, request);
+//            }
+//
+//            else if (fieldInstance instanceof BicForm<?>) {
+//                BicForm<?> fieldForm = (BicForm<?>) fieldInstance;
+//                validateElement(fieldForm, actionErrors, action, mapping, request);
+//            }
+//
+//            else {
+//                Validations validationsAnnotation = field.getAnnotation(Validations.class);
+//                if (validationsAnnotation != null) {
+//                    for (Validation validation : validationsAnnotation.value()) {
+//                        if (!validation.check().check(fieldInstance,
+//                                BicApplication.getInstance().getApplicationResource(validation.args()),
+//                                validation.empty(), action, form)) {
+//                            actionErrors.add(ActionErrors.GLOBAL_MESSAGE, new ActionMessage(validation.message(),
+//                                    BicApplication.getInstance().getApplicationResource(validation.parameterError())));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Validates the elements in the listInstance with the validateFields
+//     * method.
+//     * 
+//     * @param listInstance
+//     * @param actionErrors
+//     */
+//    private static void validateElementsList(List<?> listInstance, ActionErrors actionErrors, Action action,
+//            ActionMapping mapping, HttpServletRequest request) {
+//        for (Object listElement : listInstance) {
+//            if (listElement != null) {
+//                if (!(listElement instanceof BicFormImpl<?, ?>)) {
+//                    throw new RuntimeException("");
+//                }
+//
+//                BicForm<?> form = (BicForm<?>) listElement;
+//
+//                validateElement(form, actionErrors, action, mapping, request);
+//
+//            }
+//        }
+//    }
+//
+//    private static void validateElement(BicForm<?> formInstance, ActionErrors actionErrors, Action action,
+//            ActionMapping mapping, HttpServletRequest request) {
+//
+//        // call the element validation
+//        ActionErrors actionErrors2 = formInstance.validate(mapping, request, action);
+//        // add errors to current error list
+//        actionErrors.add(actionErrors2);
+//
+//    }
+//
+//    // /**
+//    // * Removes all null object from lists in instance.
+//    // *
+//    // * @param instance
+//    // */
+//    // public static void removeNullObjectFromAllList(Object instance) {
+//    // Class<?> clazz = instance.getClass();
+//    // while (!clazz.equals(BicFormImpl.class)) {
+//    // removeNullObjectFromList(clazz, instance);
+//    // clazz = clazz.getSuperclass();
+//    // }
+//    // }
+//
+//    // /**
+//    // * Removes null object from lists instance for the clazz.
+//    // *
+//    // * @param clazz
+//    // * @param instance
+//    // */
+//    // private static void removeNullObjectFromList(Class<?> clazz, Object
+//    // instance) {
+//    // for (Field field : clazz.getDeclaredFields()) {
+//    // Class<?> fieldClass = field.getType();
+//    // if (isListClass(fieldClass)) {
+//    // List<?> list;
+//    // try {
+//    // list = (List<?>) getObjectFromField(instance, field);
+//    // } catch (ReflectionToolsException e) {
+//    // // TODO Auto-generated catch block
+//    // e.printStackTrace();
+//    // list = null;
+//    // }
+//    //
+//    // Iterator<?> iterator = list.iterator();
+//    // while (iterator.hasNext()) {
+//    // Object object = iterator.next();
+//    // if (object == null) {
+//    // iterator.remove();
+//    // }
+//    // }
+//    // }
+//    // }
+//    // }
+//}
