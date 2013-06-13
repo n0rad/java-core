@@ -14,8 +14,9 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang.reflect;
+package net.awired.core.lang.reflect;
 
+import net.awired.core.lang.reflect.ReflectTools;
 import org.junit.Assert;
 import org.junit.Test;
 

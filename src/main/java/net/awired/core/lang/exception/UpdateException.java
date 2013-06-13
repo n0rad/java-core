@@ -14,7 +14,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang.exception;
+package net.awired.core.lang.exception;
 
 public class UpdateException extends Exception {
 

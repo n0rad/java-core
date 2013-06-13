@@ -14,7 +14,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang.reflect;
+package net.awired.core.lang.reflect;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Set;
+import net.awired.core.lang.reflect.ReflectTools;
 import org.junit.Test;
 
 public class ReflectToolParameterAnnotationsTest {

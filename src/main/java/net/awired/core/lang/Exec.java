@@ -14,7 +14,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang;
+package net.awired.core.lang;
 
 import java.io.BufferedReader;
 import java.io.IOException;

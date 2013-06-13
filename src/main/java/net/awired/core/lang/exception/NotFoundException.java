@@ -14,14 +14,17 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang;
+package net.awired.core.lang.exception;
 
-import java.util.List;
+public class NotFoundException extends Exception {
 
-public class Caster {
+    private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unchecked")
-    public static <U, T extends U> List<U> cast(List<T> p, Class<U> t) {
-        return (List<U>) p;
+    public NotFoundException(String msg) {
+        super(msg);
+    }
+
+    public NotFoundException(String msg, Throwable e) {
+        super(msg, e);
     }
 }

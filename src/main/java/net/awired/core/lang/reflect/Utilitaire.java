@@ -14,7 +14,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.ajsl.core.lang.reflect;
+package net.awired.core.lang.reflect;
 
 import java.io.File;
 import java.io.IOException;
