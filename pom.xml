@@ -23,6 +23,14 @@
 	</scm>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>0.11.8</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- Tests -->
 		<dependency>
 			<groupId>junit</groupId>
