@@ -1,23 +1,19 @@
 package net.awired.core.updater;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public abstract class UpdateRunner {
 
-    private final List<Update> updates;
+    private final Set<Update> updates;
 
     protected abstract Version getCurrentVersion();
 
     protected abstract void setNewVersion(Version version);
 
-    public UpdateRunner(Collection<Update> updates) {
-        this.updates = new ArrayList<>(updates);
-        checkNoOverlap();
+    public UpdateRunner(Set<Update> updates) {
+        this.updates = new TreeSet<>(updates);
         checkDiffUpdater();
-        Collections.sort(this.updates);
     }
 
     /**
@@ -30,8 +26,8 @@ public abstract class UpdateRunner {
         }
         try {
             nextUpdate.getUpdater().update();
-            setNewVersion(nextUpdate.getTo());
-            return nextUpdate.getTo();
+            setNewVersion(nextUpdate.getVersion());
+            return nextUpdate.getVersion();
         } catch (Exception e) {
             throw new IllegalStateException("Exception during update : " + nextUpdate, e);
         }
@@ -42,7 +38,7 @@ public abstract class UpdateRunner {
         do {
             updateFromOneVersion();
             next = findNextUpdate();
-        } while (next != null && next.getFrom().compareTo(version) < 0);
+        } while (next != null && next.getVersion().compareTo(version) <= 0);
     }
 
     public void updateToLatest() {
@@ -57,25 +53,14 @@ public abstract class UpdateRunner {
     public Update findNextUpdate() {
         Version currentVersion = getCurrentVersion();
         if (currentVersion == null) {
-            return updates.size() > 0 ? updates.get(0) : null;
+            return updates.size() > 0 ? updates.iterator().next() : null;
         }
         for (Update update : updates) {
-            if (update.getFrom().compareTo(currentVersion) >= 0) {
+            if (update.getVersion().compareTo(currentVersion) > 0) {
                 return update;
             }
         }
         return null;
-    }
-
-    private void checkNoOverlap() {
-        for (Update toCheck : updates) {
-            for (Update update : updates) {
-                if (toCheck != update && toCheck.getFrom().compareTo(update.getFrom()) > -1
-                        && toCheck.getFrom().compareTo(update.getTo()) < 0) {
-                    throw new IllegalStateException("Update : " + toCheck + " overlap " + update);
-                }
-            }
-        }
     }
 
     private void checkDiffUpdater() {
