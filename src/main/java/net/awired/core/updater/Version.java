@@ -128,9 +128,8 @@ public class Version implements Comparable<Version> {
     public static Version parse(String versionString) {
         Matcher matcher = pattern.matcher(versionString);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("NOT FOUND");
+            throw new IllegalArgumentException("Version '" + versionString + "' cannot be parsed");
         }
-        int groupCount = matcher.groupCount();
         return new Version(Integer.parseInt(matcher.group("major")), //
                 matcher.group("minor") == null ? 0 : Integer.parseInt(matcher.group("minor")), //
                 matcher.group("bugfix") == null ? 0 : Integer.parseInt(matcher.group("bugfix")), //

@@ -2,16 +2,21 @@ package net.awired.core.updater;
 
 import java.util.Set;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class UpdateRunner {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Set<Update> updates;
+    private final String name;
 
     protected abstract Version getCurrentVersion();
 
     protected abstract void setNewVersion(Version version);
 
-    public UpdateRunner(Set<Update> updates) {
+    public UpdateRunner(String name, Set<Update> updates) {
+        this.name = name;
         this.updates = new TreeSet<>(updates);
         checkDiffUpdater();
     }
@@ -25,6 +30,7 @@ public abstract class UpdateRunner {
             return null;
         }
         try {
+            log.info("Updating " + name + " to " + nextUpdate.getVersion().toFullString());
             nextUpdate.getUpdater().update();
             setNewVersion(nextUpdate.getVersion());
             return nextUpdate.getVersion();

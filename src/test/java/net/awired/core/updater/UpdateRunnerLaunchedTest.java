@@ -22,7 +22,7 @@ public class UpdateRunnerLaunchedTest {
         public Version version = null;
 
         public testUpdateRunner(Update... updates) {
-            super(new HashSet<>(Arrays.asList(updates)));
+            super("test", new HashSet<>(Arrays.asList(updates)));
         }
 
         @Override

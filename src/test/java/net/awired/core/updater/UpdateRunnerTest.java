@@ -19,7 +19,7 @@ public class UpdateRunnerTest {
 
     class testUpdateRunner extends UpdateRunner {
         public testUpdateRunner(Set<Update> updates) {
-            super(updates);
+            super("test", updates);
         }
 
         @Override
