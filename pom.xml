@@ -6,7 +6,7 @@
 	<name>Core</name>
 	<description>Core lib with what I don't find elsewhere</description>
 	<packaging>jar</packaging>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 
 	<parent>
 		<groupId>net.awired.parent</groupId>
@@ -18,7 +18,7 @@
 		<connection>scm:git:git://github.com/awired/core.git</connection>
 		<developerConnection>scm:git:git@github.com:awired/core.git</developerConnection>
 		<url>https://github.com/awired/core</url>
-		<tag>core-0.6</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
