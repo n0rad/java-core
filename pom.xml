@@ -18,7 +18,6 @@
 		<connection>scm:git:git://github.com/awired/core.git</connection>
 		<developerConnection>scm:git:git@github.com:awired/core.git</developerConnection>
 		<url>https://github.com/awired/core</url>
-		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
