@@ -30,8 +30,7 @@ public class Exec {
 
     public static List<String> runExec(String cmd) {
         try {
-            //TODO change list type ? 
-            List<String> res = new ArrayList<String>();
+            List<String> res = new ArrayList<>();
 
             Process process = Runtime.getRuntime().exec(cmd);
             LOG.info("Exec : " + cmd);

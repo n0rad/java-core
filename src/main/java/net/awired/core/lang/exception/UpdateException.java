@@ -22,4 +22,8 @@ public class UpdateException extends Exception {
         super(msg);
     }
 
+    public UpdateException(String msg, Throwable e) {
+        super(msg, e);
+    }
+
 }

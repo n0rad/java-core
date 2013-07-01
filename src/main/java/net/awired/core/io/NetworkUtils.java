@@ -58,7 +58,7 @@ public class NetworkUtils {
     }
 
     private static Map<InetAddress, String> getInetAddressMap() {
-        Map<InetAddress, String> found = new HashMap<InetAddress, String>();
+        Map<InetAddress, String> found = new HashMap<>();
         Enumeration<NetworkInterface> netInterfaces = null;
         try {
             netInterfaces = NetworkInterface.getNetworkInterfaces();

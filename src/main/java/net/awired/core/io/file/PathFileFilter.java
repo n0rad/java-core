@@ -14,7 +14,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package net.awired.core.io;
+package net.awired.core.io.file;
 
 import java.io.FileFilter;
 import java.util.HashMap;
