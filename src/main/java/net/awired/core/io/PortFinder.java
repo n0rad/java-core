@@ -24,8 +24,8 @@ public class PortFinder {
 
     private static int MAX_TRIES = 100;
 
-    public static int randomBetween(int start, int end) {
-        return start + (int) (Math.random() * ((end - start) + 1));
+    public static int randomAvailable() {
+        return findAvailableBetween(1025, 65534);
     }
 
     public static Integer findAvailableBetween(int start, int end) {
@@ -70,4 +70,9 @@ public class PortFinder {
 
         return false;
     }
+
+    private static int randomBetween(int start, int end) {
+        return start + (int) (Math.random() * ((end - start) + 1));
+    }
+
 }
