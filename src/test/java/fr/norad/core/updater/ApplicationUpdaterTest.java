@@ -18,8 +18,8 @@ package fr.norad.core.updater;
 
 import static fr.norad.core.updater.Version.V;
 import static org.fest.assertions.api.Assertions.assertThat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 
 public class ApplicationUpdaterTest {
@@ -39,7 +39,7 @@ public class ApplicationUpdaterTest {
 
     class TestApplicationUpdater extends ApplicationUpdater {
         public Version version;
-        public List<String> updatedNames = new ArrayList<>();
+        public Set<String> updatedNames = new HashSet<>();
 
         public TestApplicationUpdater(ApplicationVersion... updates) {
             super("test", updates);
@@ -51,7 +51,7 @@ public class ApplicationUpdaterTest {
         }
 
         @Override
-        protected List<String> getUpdatedNames(Version version) {
+        protected Set<String> getUpdatedNames(Version version) {
             if (this.version == null || this.version.equals(version)) {
                 return updatedNames;
             }
@@ -62,7 +62,7 @@ public class ApplicationUpdaterTest {
         protected void addUpdatedName(Version version, String name) {
             if (this.version == null || !this.version.equals(version)) {
                 this.version = version;
-                updatedNames = new ArrayList<>();
+                updatedNames = new HashSet<>();
             }
             updatedNames.add(name);
         }
