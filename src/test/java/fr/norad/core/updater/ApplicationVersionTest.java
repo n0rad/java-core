@@ -18,6 +18,7 @@ package fr.norad.core.updater;
 
 import static fr.norad.core.updater.Version.V;
 import static org.fest.assertions.api.Assertions.assertThat;
+import java.util.List;
 import org.junit.Test;
 
 public class ApplicationVersionTest {
@@ -68,5 +69,21 @@ public class ApplicationVersionTest {
             public void runUpdate() {
             }
         }).getUpdates();
+    }
+
+    @Test
+    public void should_find_names() throws Exception {
+        List<String> updateNames = new ApplicationVersion(V(2), new Update("up") {
+            @Override
+            public void runUpdate() {
+            }
+        }, new Update("up2") {
+            @Override
+            public void runUpdate() {
+            }
+        }).getUpdateNames();
+
+        assertThat(updateNames).containsSequence("up", "up2");
+
     }
 }

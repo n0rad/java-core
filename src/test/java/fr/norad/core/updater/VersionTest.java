@@ -19,7 +19,6 @@ package fr.norad.core.updater;
 import static fr.norad.core.updater.Version.V;
 import static org.fest.assertions.api.Assertions.assertThat;
 import org.junit.Test;
-import fr.norad.core.updater.Version;
 
 public class VersionTest {
 

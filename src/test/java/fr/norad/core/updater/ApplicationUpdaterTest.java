@@ -18,8 +18,8 @@ package fr.norad.core.updater;
 
 import static fr.norad.core.updater.Version.V;
 import static org.fest.assertions.api.Assertions.assertThat;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class ApplicationUpdaterTest {
@@ -38,20 +38,33 @@ public class ApplicationUpdaterTest {
     }
 
     class TestApplicationUpdater extends ApplicationUpdater {
-        public Version version = null;
+        public Version version;
+        public List<String> updatedNames = new ArrayList<>();
 
         public TestApplicationUpdater(ApplicationVersion... updates) {
-            super("test", new HashSet<>(Arrays.asList(updates)));
-        }
-
-        @Override
-        protected void setNewVersion(Version version) {
-            this.version = version;
+            super("test", updates);
         }
 
         @Override
         protected Version getCurrentVersion() {
             return version;
+        }
+
+        @Override
+        protected List<String> getUpdatedNames(Version version) {
+            if (this.version == null || this.version.equals(version)) {
+                return updatedNames;
+            }
+            return null;
+        }
+
+        @Override
+        protected void addUpdatedName(Version version, String name) {
+            if (this.version == null || !this.version.equals(version)) {
+                this.version = version;
+                updatedNames = new ArrayList<>();
+            }
+            updatedNames.add(name);
         }
     }
 
@@ -86,6 +99,7 @@ public class ApplicationUpdaterTest {
         TestUpdate update1 = new TestUpdate("update");
         TestApplicationUpdater runner = new TestApplicationUpdater(new ApplicationVersion(V(0, 2), update02), //
                 new ApplicationVersion(V(1), update1));
+        runner.updatedNames.add("update");
         runner.version = V(0, 2);
 
         assertThat(runner.updateFromOneVersion()).isEqualTo(V(1));
@@ -187,6 +201,22 @@ public class ApplicationUpdaterTest {
 
         assertThat(newVersion).isEqualTo(V(1));
         assertThat(update.updated).isTrue();
+        assertThat(updateA.updated).isTrue();
+        assertThat(runner.version).isEqualTo(V(1));
+    }
+
+    @Test
+    public void should_run_update_not_done_yet() throws Exception {
+        TestUpdate update = new TestUpdate("update");
+        TestUpdate updateA = new TestUpdate("updateA");
+        TestApplicationUpdater runner = new TestApplicationUpdater(new ApplicationVersion(V(1), update, updateA));
+        runner.version = V(1);
+        runner.updatedNames.add("update");
+
+        Version newVersion = runner.updateFromOneVersion();
+
+        assertThat(newVersion).isEqualTo(V(1));
+        assertThat(update.updated).isFalse();
         assertThat(updateA.updated).isTrue();
         assertThat(runner.version).isEqualTo(V(1));
     }

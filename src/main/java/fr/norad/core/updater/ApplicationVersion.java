@@ -16,6 +16,7 @@
  */
 package fr.norad.core.updater;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Data;
@@ -51,6 +52,23 @@ public class ApplicationVersion implements Comparable<ApplicationVersion> {
     @Override
     public int compareTo(ApplicationVersion other) {
         return version.compareTo(other.getVersion());
+    }
+
+    public Update getUpdate(String name) {
+        for (Update update : updates) {
+            if (name.equals(update.getName())) {
+                return update;
+            }
+        }
+        return null;
+    }
+
+    public List<String> getUpdateNames() {
+        List<String> names = new ArrayList<>();
+        for (Update update : updates) {
+            names.add(update.getName());
+        }
+        return names;
     }
 
 }

@@ -16,6 +16,9 @@
  */
 package fr.norad.core.updater;
 
+import static java.util.Arrays.asList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import org.slf4j.Logger;
@@ -24,16 +27,18 @@ import org.slf4j.LoggerFactory;
 public abstract class ApplicationUpdater {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final Set<ApplicationVersion> updates;
-    private final String name;
+    private final Set<ApplicationVersion> appVersions;
+    private final String applicationName;
 
     protected abstract Version getCurrentVersion();
 
-    protected abstract void setNewVersion(Version version);
+    protected abstract Set<String> getUpdatedNames(Version version);
 
-    public ApplicationUpdater(String name, Set<ApplicationVersion> updates) {
-        this.name = name;
-        this.updates = new TreeSet<>(updates);
+    protected abstract void addUpdatedName(Version version, String name);
+
+    public ApplicationUpdater(String applicationName, ApplicationVersion... appVersions) {
+        this.applicationName = applicationName;
+        this.appVersions = Collections.unmodifiableSet(new TreeSet<>(asList(appVersions)));
     }
 
     /**
@@ -44,14 +49,30 @@ public abstract class ApplicationUpdater {
         if (nextUpdate == null) {
             return null;
         }
-        try {
-            log.info("Updating " + name + " to " + nextUpdate.getVersion().toFullString());
-            nextUpdate.getUpdates().get(0).runUpdate();
-            setNewVersion(nextUpdate.getVersion());
-            return nextUpdate.getVersion();
-        } catch (Exception e) {
-            throw new IllegalStateException("Exception during update : " + nextUpdate, e);
+
+        Set<String> updatedNames = getUpdatedNames(nextUpdate.getVersion());
+        if (updatedNames == null) {
+            updatedNames = new HashSet<>();
         }
+        boolean updated = false;
+        for (String name : nextUpdate.getUpdateNames()) {
+            if (!updatedNames.contains(name)) {
+                try {
+                    log.info("## Updating " + applicationName + " to " + nextUpdate.getVersion().toFullString()
+                            + " : " + name);
+                    Update update = nextUpdate.getUpdate(name);
+                    if (update == null) {
+                        throw new IllegalStateException("Should find update with name : " + name + " at this point");
+                    }
+                    update.runUpdate();
+                    addUpdatedName(nextUpdate.getVersion(), name);
+                    updated = true;
+                } catch (Exception e) {
+                    throw new IllegalStateException("Exception during update : " + nextUpdate, e);
+                }
+            }
+        }
+        return updated ? nextUpdate.getVersion() : null;
     }
 
     public void updateTo(Version version) {
@@ -74,14 +95,22 @@ public abstract class ApplicationUpdater {
     public ApplicationVersion findNextUpdate() {
         Version currentVersion = getCurrentVersion();
         if (currentVersion == null) {
-            return updates.size() > 0 ? updates.iterator().next() : null;
+            return appVersions.size() > 0 ? appVersions.iterator().next() : null;
         }
-        for (ApplicationVersion update : updates) {
-            if (update.getVersion().compareTo(currentVersion) > 0) {
-                return update;
+        for (ApplicationVersion appVersion : appVersions) {
+            Set<String> updatedNames = getUpdatedNames(currentVersion);
+            if (appVersion.getVersion().equals(currentVersion)
+                    && (updatedNames == null || !updatedNames.containsAll(appVersion.getUpdateNames()))) {
+                return appVersion;
+            } else if (appVersion.getVersion().compareTo(currentVersion) > 0) {
+                return appVersion;
             }
         }
         return null;
+    }
+
+    public Set<ApplicationVersion> getAppVersions() {
+        return appVersions;
     }
 
 }
