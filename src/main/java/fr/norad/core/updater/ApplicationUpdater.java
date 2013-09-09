@@ -21,33 +21,32 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class UpdateRunner {
+public abstract class ApplicationUpdater {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final Set<Update> updates;
+    private final Set<ApplicationVersion> updates;
     private final String name;
 
     protected abstract Version getCurrentVersion();
 
     protected abstract void setNewVersion(Version version);
 
-    public UpdateRunner(String name, Set<Update> updates) {
+    public ApplicationUpdater(String name, Set<ApplicationVersion> updates) {
         this.name = name;
         this.updates = new TreeSet<>(updates);
-        checkDiffUpdater();
     }
 
     /**
      * @return null if nothing needs to be updated. Exception on error. New version on updated
      */
     public Version updateFromOneVersion() {
-        Update nextUpdate = findNextUpdate();
+        ApplicationVersion nextUpdate = findNextUpdate();
         if (nextUpdate == null) {
             return null;
         }
         try {
             log.info("Updating " + name + " to " + nextUpdate.getVersion().toFullString());
-            nextUpdate.getUpdater().update();
+            nextUpdate.getUpdates().get(0).runUpdate();
             setNewVersion(nextUpdate.getVersion());
             return nextUpdate.getVersion();
         } catch (Exception e) {
@@ -56,7 +55,7 @@ public abstract class UpdateRunner {
     }
 
     public void updateTo(Version version) {
-        Update next = null;
+        ApplicationVersion next = null;
         do {
             updateFromOneVersion();
             next = findNextUpdate();
@@ -72,12 +71,12 @@ public abstract class UpdateRunner {
 
     /////////////////////////////////////////////
 
-    public Update findNextUpdate() {
+    public ApplicationVersion findNextUpdate() {
         Version currentVersion = getCurrentVersion();
         if (currentVersion == null) {
             return updates.size() > 0 ? updates.iterator().next() : null;
         }
-        for (Update update : updates) {
+        for (ApplicationVersion update : updates) {
             if (update.getVersion().compareTo(currentVersion) > 0) {
                 return update;
             }
@@ -85,16 +84,4 @@ public abstract class UpdateRunner {
         return null;
     }
 
-    private void checkDiffUpdater() {
-        for (Update toCheck : updates) {
-            for (Update update : updates) {
-                if (update.getUpdater() == null) {
-                    throw new IllegalStateException("Updater cannot be null");
-                }
-                if (toCheck != update && toCheck.getUpdater() == update.getUpdater()) {
-                    throw new IllegalStateException("Update " + toCheck + " and " + update + " have same updater");
-                }
-            }
-        }
-    }
 }
