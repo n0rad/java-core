@@ -102,7 +102,14 @@ public class AnnotationUtils {
             }
         }
         return annotation;
+    }
 
+    public static <T extends Annotation> T findAnnotationOnMethodOrClass(Method method, Class<T> annotationClass) {
+        T annotation = findAnnotation(method, annotationClass);
+        if (annotation == null) {
+            annotation = findAnnotation(method.getDeclaringClass(), annotationClass);
+        }
+        return annotation;
     }
 
     //Code copied over from Spring
