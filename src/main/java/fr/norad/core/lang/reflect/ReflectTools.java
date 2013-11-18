@@ -48,6 +48,7 @@ public final class ReflectTools {
         return instanceToReturn;
     }
 
+    @Deprecated(/*XXX.class.isAssignableFrom()*/)
     public static boolean classImplement(Class<?> clazz, Class<?> implement) {
         Class<?> current = clazz;
         while (current != null) {

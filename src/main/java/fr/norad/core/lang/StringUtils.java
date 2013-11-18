@@ -22,6 +22,10 @@ import java.io.InputStreamReader;
 
 public class StringUtils {
 
+    public static boolean notEmpty(String element) {
+        return element != null && !element.isEmpty();
+    }
+
     public static String ucFirst(String string) {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
