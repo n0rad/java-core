@@ -16,8 +16,8 @@
  */
 package fr.norad.core.lang.reflect;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import java.util.UUID;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class AnnotationUtilsTest {
@@ -48,7 +48,7 @@ public class AnnotationUtilsTest {
         Deprecated annotation = AnnotationUtils.findParameterAnnotation(
                 ParameterClass.class.getMethod("getUUID", UUID.class), 0, Deprecated.class);
 
-        assertThat(annotation).isNotNull();
+        Assertions.assertThat(annotation).isNotNull();
     }
 
 }

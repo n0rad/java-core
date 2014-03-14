@@ -16,7 +16,7 @@
  */
 package fr.norad.core.lang.reflect;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
