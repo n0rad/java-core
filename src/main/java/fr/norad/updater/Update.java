@@ -27,6 +27,6 @@ public abstract class Update {
         this.name = name;
     }
 
-    public abstract void runUpdate();
+    public abstract void runUpdate() throws Exception;
 
 }
